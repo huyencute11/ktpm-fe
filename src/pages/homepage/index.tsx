@@ -47,7 +47,7 @@ const HomePage = () => {
                 </div>
             ) : (
                 <div className='container mx-auto pt-5'>
-                    {data?.map((item : unknown) => (
+                    {data?.map((item : any) => (
                         <div key={item.id}>{item.title} - {item.price}$</div>
                     ))}
                 </div>
