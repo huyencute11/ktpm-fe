@@ -1,11 +1,8 @@
-// import customerReducer from "../module/Customer/slice";
-// import employeeReducer from "../module/Employee/slice";
-// import orderReducer from "../module/Order/slice";
+
+import subjectReducer from "../pages/homepage/store/subject.slice";
 
 const rootReducer = {
-   // customer: customerReducer,
-   // employee: employeeReducer,
-   // order: orderReducer,
+   subject: subjectReducer,
 };
 
 export default rootReducer;

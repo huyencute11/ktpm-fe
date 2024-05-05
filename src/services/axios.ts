@@ -1,12 +1,11 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://example.com/api',
-    //process.env.API_URL,
+    baseURL: 'http://localhost:8888',
     headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        // withCredentials: true,
+        withCredentials: true,
     },
 });
 
@@ -22,7 +21,6 @@ axiosInstance.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
 axiosInstance.interceptors.response.use(
     (response) => {
         return response;

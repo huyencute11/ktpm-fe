@@ -3,14 +3,11 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import rootReducer from './routeReducer';
 import rootSaga from './routeSaga';
 
-// import rootReducer from './rootReducer';
-// import rootSaga from './rootSaga';
 const sagaMiddleware = createSagaMiddleware();
-// const middleware = [...getDefaultMiddleware({ thunk: false }), sagaMiddleware]
 
 export const store = configureStore({
     reducer: combineReducers(rootReducer),
-    middleware: (getDefaultMiddleware : any)  => getDefaultMiddleware().concat(sagaMiddleware)
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(sagaMiddleware)
 });
 // function* RootSaga() {
 //     yield all([...rootSaga]);
