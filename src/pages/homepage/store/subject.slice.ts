@@ -1,69 +1,64 @@
-// import { createSlice } from '@reduxjs/toolkit'
-// import {
-//     getSubjects
-// } from './subject.actionThunks'
-export type APIStatus = 'IDLE' | 'LOADING' | 'SUCCESS' | 'ERROR'
-
-// export type SubjectState = {
-//     dataSubjectStatus: APIStatus,
-//     dataSubjectList: any[],
-// }
-
-// const initialState: SubjectState = {
-//     dataSubjectList: [],
-//     dataSubjectStatus: 'IDLE',
-// }
-
-// const subject = createSlice({
-//     name: `Subject/state`,
-//     initialState,
-//     reducers: {
-//         resetState: (state) => {
-//             state.dataSubjectStatus = 'IDLE'
-//         }
-//     },
-//     extraReducers: (builder) => {
-//         builder
-//             .addCase(getSubjects.pending, (state) => {
-//                 state.dataSubjectStatus = 'LOADING'
-//             })
-//             .addCase(getSubjects.fulfilled, (state, action) => {
-//                 state.dataSubjectStatus = 'SUCCESS'
-//                 state.dataSubjectList = action.payload.data // Access the 'data' property of 'action.payload'
-//             })
-//             .addCase(getSubjects.rejected, (state) => {
-//                 state.dataSubjectStatus = 'ERROR'
-//             })
-          
-//     }
-// })
-
-// export const {
-//     // setSearch,
-//     // setFilterState
-//     // setColumnState,
-//     resetState
-//     // toggleConfigLastChannelDialog,
-// } = subject.actions
-
-// export default subject.reducer
-
-
+export type APIStatus = "IDLE" | "LOADING" | "SUCCESS" | "ERROR";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+export interface ClassInSubjectType {
+  id: number;
+  classCode: string;
+  subjectId: {
+    id: number;
+    name: string;
+    credit: number;
+    type: string;
+    majorId: number;
+    preSubject: [];
+  };
+  semester: {
+    id: number;
+    name: string;
+    year: string;
+  };
+  createdDate: string;
+  closedDate: string;
+  numberOfStudent: number;
+  minStudent: number;
+  maxStudent: number;
+  startDate: string;
+  endDate: string;
+  acceptOpen: boolean;
+}
+export interface SubjectDataType {
+  key?: React.Key;
+  id: number;
+  name: string;
+  credit: number;
+  type: string;
+  majorId: number;
+  preSubject: number[];
+}
+
+export interface SemesterType {
+  id: number;
+  name: string;
+  year: string;
+}
 
 export interface Customer {
-  dataListSubject: any[];
+  dataListClassInSubject: ClassInSubjectType[];
   statusGetDataList: "idle" | "loading" | "failed" | "complete";
   messageGetDataList: string;
+
+  dataListSubject: SubjectDataType[];
+  dataListSemester: SemesterType[];
   // insertDataCustomer: any;
   // statusInsertCustomer: "idle" | "loading" | "failed" | "complete";
   // messageInsertCustomer: string;
 }
 
 const initialState: Customer = {
-  dataListSubject: [],
+  dataListClassInSubject: [],
   statusGetDataList: "idle",
   messageGetDataList: "",
+  dataListSubject: [],
+  dataListSemester: [],
 };
 
 export const SubjectSlice = createSlice({
@@ -71,6 +66,24 @@ export const SubjectSlice = createSlice({
   initialState,
   reducers: {
     //GET API
+    getListClassInSubject: (state) => {
+      state.statusGetDataList = "loading";
+    },
+    getListClassInSubjectSuccess: (
+      state,
+      action: PayloadAction<{ data: any }>
+    ) => {
+      state.dataListClassInSubject = action.payload.data;
+      state.statusGetDataList = "complete";
+    },
+    getListClassInSubjectFailed: (
+      state,
+      action: PayloadAction<{ data: string }>
+    ) => {
+      state.statusGetDataList = "failed";
+      state.messageGetDataList = action.payload.data;
+    },
+    //
     getListSubject: (state) => {
       state.statusGetDataList = "loading";
     },
@@ -82,17 +95,32 @@ export const SubjectSlice = createSlice({
       state.statusGetDataList = "failed";
       state.messageGetDataList = action.payload.data;
     },
-   
-    //GET API DETAIL PACKAGE
+    //semester
+    getListSemester: (state) => {
+      state.statusGetDataList = "loading";
+    },
+    getListSemesterSuccess: (state, action: PayloadAction<{ data: any }>) => {
+      state.dataListSemester = action.payload.data;
+      state.statusGetDataList = "complete";
+    },
+    getListSemesterFailed: (state, action: PayloadAction<{ data: string }>) => {
+      state.statusGetDataList = "failed";
+      state.messageGetDataList = action.payload.data;
+    },
   },
 });
 
 // ACTION
 export const {
+  getListClassInSubject,
+  getListClassInSubjectSuccess,
+  getListClassInSubjectFailed,
   getListSubject,
   getListSubjectSuccess,
   getListSubjectFailed,
-  
+  getListSemester,
+  getListSemesterSuccess,
+  getListSemesterFailed,
 } = SubjectSlice.actions;
 // SELECTORS
 

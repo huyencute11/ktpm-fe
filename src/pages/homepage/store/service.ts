@@ -1,18 +1,38 @@
-import axios from "axios";
 import axiosInstance from "../../../services/axios";
 
-export const getListSubjectData = async (data: object) => {
+export const getListClassInSubjectData = async (data: {subjectId:number, semesterId: number}) => {
   try {
-    // const res = await axiosInstance.get(
-    //     `https://fakestoreapi.com/products`
-    // );
     const response = await axiosInstance.get(
-      `/credit-class?subjectId=1&semesterId=1`
+      `/credit-class?subjectId=${data.subjectId}&semesterId=${data.semesterId}`
     );
     console.log(response);
-    debugger;
     return response;
   } catch (error) {
     console.log(error);
   }
 };
+
+export const getListSubjectData = async (data: object) => {
+  try {
+    const response = await axiosInstance.get(
+      `/subjects`
+    );
+    console.log(response);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getListSemesterData = async (data: object) => {
+  try {
+    // localhost:8080/credit-class/semester
+    const response = await axiosInstance.get(
+      `/credit-class/semester`
+    );
+    console.log(response);
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
