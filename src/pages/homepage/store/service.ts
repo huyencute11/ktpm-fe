@@ -17,7 +17,6 @@ export const getListSubjectData = async (data: object) => {
     const response = await axiosInstance.get(
       `/subjects`
     );
-    console.log(response);
     return response;
   } catch (error) {
     console.log(error);

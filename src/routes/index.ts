@@ -7,11 +7,11 @@ const Login = lazy(() => import('../pages/auth/Login'));
 
 export const routes = [
     {
-        path: '/login',
+        path: '/',
         component:Login,
     },
     {
-        path: '/',
+        path: '/home',
         component: HomePage,
     },
     {
