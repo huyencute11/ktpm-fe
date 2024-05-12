@@ -3,12 +3,14 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Select,
   Divider,
+  Modal,
   Space,
   Radio,
   Table,
   Button,
   notification,
 } from "antd";
+// import { Button, Modal } from 'antd';
 import type { TableColumnsType } from "antd";
 import { useAppDispatch, useAppSelector } from "../../hook/hook";
 import {
@@ -50,6 +52,9 @@ const HomePage = () => {
   const dataSemester = useAppSelector(
     (state) => state.subject.dataListSemester
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenTmp, setIsModalOpenTmp] = useState(false);
+  const [currentClass, setCurrentClass] = useState<ClassInSubjectType | null>();
   useEffect(() => {
     dispatch(getListSubject());
     dispatch(getListSemester());
@@ -144,6 +149,16 @@ const HomePage = () => {
           message: "Bạn chưa hoàn thành môn học tiên quyết.",
         });
         setClassInSubject([]);
+      } else if (
+        dataStudent?.numberCredits ??
+        0 + selectedRows[0].credit > 30
+      ) {
+        notification.open({
+          type: "warning",
+          description: "Bạn không được đăng ký quá số tín chỉ cho phép.",
+          message: "Số tín chỉ vượt quá giới hạn.",
+        });
+        setClassInSubject([]);
       } else {
         getClassInSubject(selectedRows[0].id);
       }
@@ -172,10 +187,10 @@ const HomePage = () => {
   //   });
   // }, []);
   const [loadingRegisterClass, setLoadingRegisterClass] = useState(false);
-  const handleRegisterClass = async (classId: number) => {
+  const handleRegisterClass = async () => {
     try {
       setLoadingRegisterClass(true);
-      const res = await registerClass(classId);
+      const res = await registerClass(currentClass?.id || 0);
       console.log(res);
       if (res?.status === 200) {
         // openNotification("success", "Đăng ký thành công.");
@@ -195,8 +210,28 @@ const HomePage = () => {
       openNoti("error", "Đăng ký thất bại", "Đăng ký lớp học phần thất bại.");
     } finally {
       setLoadingRegisterClass(false);
+      setCurrentClass(null);
+      setIsModalOpen(false);
     }
   };
+
+  // confirm register class
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setCurrentClass(null);
+  };
+  const handleConfirmRegisterClass = (record: ClassInSubjectType) => {
+    setIsModalOpen(true);
+    setCurrentClass(record);
+    // setClassInSubject([record]);
+  };
+  const handleConfirmRegisterClassTmp = (record: ClassInSubjectType) => {
+    setIsModalOpenTmp(true);
+    // setCurrentClass(record);
+    // setClassInSubject([record]);
+  };
+  
 
   //------------------------ CLASS IN SUBJECT ------------------------
   const columnsClassInSubject: TableColumnsType<ClassInSubjectType> = [
@@ -264,10 +299,20 @@ const HomePage = () => {
             // loading={loadingRegisterClass}
             disabled={record.numberOfStudent >= record.maxStudent}
             type="primary"
-            onClick={() => handleRegisterClass(record.id)}
+            onClick={() => handleConfirmRegisterClass(record)}
           >
             Đăng ký
           </Button>
+          {record.numberOfStudent >= record.maxStudent ? (
+            <Button
+              // loading={loadingRegisterClass}
+              // disabled={record.numberOfStudent >= record.maxStudent}
+              type="primary"
+              onClick={() => handleConfirmRegisterClassTmp(record)}
+            >
+              Học lớp dự bị (nếu có)
+            </Button>
+          ) : null}
         </Space>
       ),
     },
@@ -291,82 +336,106 @@ const HomePage = () => {
   };
 
   return (
-    <Main>
-      <div className="my-4">
-        <Space wrap>
-          {dataSemester?.length === 0 ? (
-            <h3>Không có học kỳ nào</h3>
-          ) : (
-            <>
-              <h3>Chọn học kỳ</h3>
-              <Select
-                // defaultValue={
-                //   dataSemester[0]?.name.toString() + " " + dataSemester[0]?.year
-                // }
-                style={{ width: 180 }}
-                defaultValue={selectedSemester}
-                onChange={(value) => {
-                  // const selectedSemester = dataSemester.find(
-                  //   (semester) => semester.id === value
-                  // );
-                  // setSelectedSemester(
-                  //   selectedSemester?.name.toString() +
-                  //   " " +
-                  //   selectedSemester?.year.toString()
-                  // );
-                  // console.log(selectedSemester);
-                  setSelectedSemester(value);
-                }}
-                options={dataSemester?.map((item) => ({
-                  value: item.id,
-                  label: item.name + " " + item.year,
-                }))}
-              />
-            </>
-          )}
-        </Space>
-      </div>
-      <Divider />
-      {isLoading === "loading" ? (
-        <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-      ) : (
-        <Table
-          rowSelection={{
-            type: "radio",
-            ...rowSelection,
-          }}
-          rowKey={(record) => record.id}
-          title={() => <h3>Danh sách môn học phần chờ đăng ký</h3>}
-          columns={columns}
-          dataSource={dataSubject || []}
-        />
-      )}
+    <>
+      <Main>
+        <div className="my-4">
+          <Space wrap>
+            {dataSemester?.length === 0 ? (
+              <h3>Không có học kỳ nào</h3>
+            ) : (
+              <>
+                <h3>Chọn học kỳ</h3>
+                <Select
+                  // defaultValue={
+                  //   dataSemester[0]?.name.toString() + " " + dataSemester[0]?.year
+                  // }
+                  style={{ width: 180 }}
+                  defaultValue={selectedSemester}
+                  onChange={(value) => {
+                    // const selectedSemester = dataSemester.find(
+                    //   (semester) => semester.id === value
+                    // );
+                    // setSelectedSemester(
+                    //   selectedSemester?.name.toString() +
+                    //   " " +
+                    //   selectedSemester?.year.toString()
+                    // );
+                    // console.log(selectedSemester);
+                    setSelectedSemester(value);
+                  }}
+                  options={dataSemester?.map((item) => ({
+                    value: item.id,
+                    label: item.name + " " + item.year,
+                  }))}
+                />
+              </>
+            )}
+          </Space>
+        </div>
+        <Divider />
+        {isLoading === "loading" ? (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+        ) : (
+          <Table
+            rowSelection={{
+              type: "radio",
+              ...rowSelection,
+            }}
+            rowKey={(record) => record.id}
+            title={() => <h3>Danh sách môn học phần chờ đăng ký</h3>}
+            columns={columns}
+            dataSource={dataSubject || []}
+          />
+        )}
 
-      <Divider />
-      {/* {classInSubject?.length === 0 ? (
+        <Divider />
+        {/* {classInSubject?.length === 0 ? (
         <h3>Không có lớp học phần nào</h3>
       ) : ( */}
-      {loadingClass === "loading" ? (
-        <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-      ) : (
-        <Table
-          rowSelection={{
-            type: "radio",
-            ...rowSelectionClass,
-          }}
-          rowKey={(record) => record.id}
-          title={() => (
-            <h3 className="text-center text-lg">
-              Danh sách lớp học phần chờ đăng ký
-            </h3>
-          )}
-          columns={columnsClassInSubject}
-          dataSource={classInSubject || []}
-        />
-      )}
+        {loadingClass === "loading" ? (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+        ) : (
+          <Table
+            rowSelection={{
+              type: "radio",
+              ...rowSelectionClass,
+            }}
+            rowKey={(record) => record.id}
+            title={() => (
+              <h3 className="text-center text-lg">
+                Danh sách lớp học phần chờ đăng ký
+              </h3>
+            )}
+            columns={columnsClassInSubject}
+            dataSource={classInSubject || []}
+          />
+        )}
 
-      {/* )} */}
-    </Main>
+        {/* )} */}
+      </Main>
+      <Modal
+        title="Xác nhận đăng ký học phần"
+        open={isModalOpen}
+        onOk={() => handleRegisterClass()}
+        confirmLoading={loadingRegisterClass}
+        onCancel={handleCancel}
+      >
+        <p>Bạn có chắc chắn đăng muốn đăng ký lớp học phần này không</p>
+        <p>Đăng ký sẽ kh được hủy</p>
+      </Modal>
+      <Modal
+        title="Xác nhận đăng ký học phần dự bị"
+        open={isModalOpenTmp}
+        // onOk={() => handleRegisterClass()}
+        // confirmLoading={loadingRegisterClass}
+        onCancel={() => setIsModalOpenTmp(false)}
+      >
+        <h3>Bạn có chắc chắn đăng muốn đăng ký lớp học phần dự bị này không</h3>
+        <p>Lớp sẽ được cân nhắc có mở hay không,</p>
+        <p> Nếu không mở thêm lớp, sinh viên sẽ bị hủy đăng ký môn đó</p>
+        <p>Mọi thông tin sẽ gửi qua email của bạn</p>
+      </Modal>
+    </>
   );
 };
 

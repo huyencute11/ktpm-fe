@@ -52,6 +52,7 @@ export interface Student {
   accountNonLocked: boolean;
   username: string;
   authorities: any[];
+  numberCredits: number;
 }
 
 export interface SemesterType {

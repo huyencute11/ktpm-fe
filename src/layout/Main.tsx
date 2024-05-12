@@ -44,7 +44,7 @@ const {  Footer, Sider, Content } = Layout;
 
 const Main = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="w-[80%] mx-auto">
+    <div className="w-[95%] mx-auto">
         <Layout className="w-[100%]">
             {/* <Sider width="25%" >
             Sider
