@@ -35,3 +35,28 @@ export const getListSemesterData = async (data: object) => {
     console.log(error);
   }
 }
+// @PutMapping("/{classId}")
+// public ResponseEntity<?> registerClass(@RequestHeader("Authorization") String token, @PathVariable Long classId) {
+//     return ResponseEntity.ok(creditClassService.registerClass(token,classId));
+// }
+export const registerClass = async(data: number) => {
+  try {
+    const response = await axiosInstance.put(
+      `/credit-class/${data}`
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getStudentLogin = async (data:object) => {
+  try {
+    const response = await axiosInstance.get(
+      `/students/profile`
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+  }
+}

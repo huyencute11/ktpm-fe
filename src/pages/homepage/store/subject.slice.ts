@@ -35,6 +35,25 @@ export interface SubjectDataType {
   preSubject: number[];
 }
 
+export interface Student {
+  id: number;
+  studentId: number | string;
+  password: string;
+  name: string;
+  email: string;
+  phone: string;
+  completedSubjects: any[];
+  registeredSubjects: any[];
+  currentClasses: any[];
+  majorId: number;
+  enabled: boolean;
+  accountNonExpired: boolean;
+  credentialsNonExpired: boolean;
+  accountNonLocked: boolean;
+  username: string;
+  authorities: any[];
+}
+
 export interface SemesterType {
   id: number;
   name: string;
@@ -48,6 +67,9 @@ export interface Customer {
 
   dataListSubject: SubjectDataType[];
   dataListSemester: SemesterType[];
+  studentCurrent: Student | null;
+  loadingGetStudentCurrent: "idle" | "loading" | "failed" | "complete";
+  loadingClass: "idle" | "loading" | "failed" | "complete";
   // insertDataCustomer: any;
   // statusInsertCustomer: "idle" | "loading" | "failed" | "complete";
   // messageInsertCustomer: string;
@@ -59,6 +81,9 @@ const initialState: Customer = {
   messageGetDataList: "",
   dataListSubject: [],
   dataListSemester: [],
+  studentCurrent: null,
+  loadingGetStudentCurrent: "idle",
+  loadingClass: "idle",
 };
 
 export const SubjectSlice = createSlice({
@@ -67,20 +92,20 @@ export const SubjectSlice = createSlice({
   reducers: {
     //GET API
     getListClassInSubject: (state) => {
-      state.statusGetDataList = "loading";
+      state.loadingClass = "loading";
     },
     getListClassInSubjectSuccess: (
       state,
       action: PayloadAction<{ data: any }>
     ) => {
       state.dataListClassInSubject = action.payload.data;
-      state.statusGetDataList = "complete";
+      state.loadingClass = "complete";
     },
     getListClassInSubjectFailed: (
       state,
       action: PayloadAction<{ data: string }>
     ) => {
-      state.statusGetDataList = "failed";
+      state.loadingClass = "failed";
       state.messageGetDataList = action.payload.data;
     },
     //
@@ -107,6 +132,18 @@ export const SubjectSlice = createSlice({
       state.statusGetDataList = "failed";
       state.messageGetDataList = action.payload.data;
     },
+    //get student current
+    getStudentCurrent: (state) => {
+      state.loadingGetStudentCurrent = "loading";
+    },
+    getStudentCurrentSuccess: (state, action: PayloadAction<{ data: any }>) => {
+      state.studentCurrent = action.payload.data;
+      state.loadingGetStudentCurrent = "complete";
+    },
+    getStudentCurrentFailed: (state, action: PayloadAction<{ data: string }>) => {
+      state.loadingGetStudentCurrent = "failed";
+      state.messageGetDataList = action.payload.data;
+    },
   },
 });
 
@@ -121,6 +158,9 @@ export const {
   getListSemester,
   getListSemesterSuccess,
   getListSemesterFailed,
+  getStudentCurrent,
+  getStudentCurrentFailed,
+  getStudentCurrentSuccess
 } = SubjectSlice.actions;
 // SELECTORS
 

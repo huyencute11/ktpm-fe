@@ -12,8 +12,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config: any) => {
     const rawPersistData =
-      localStorage.getItem("token") ||
-      "eyJhbGciOiJIUzI1NiJ9.eyJzdHVkZW50SWQiOjExMTExMSwic3ViIjoiMTExMTExIiwiZXhwIjoxODAxMzE3MjY0fQ.dt_-LtS6Cz8Dvo4kZxeAnDGB2vf1av4-Z_uNx9SR-UA";
+      localStorage.getItem("token") 
     if (rawPersistData) {
       config.headers["Authorization"] = `Bearer ${rawPersistData}`;
     }

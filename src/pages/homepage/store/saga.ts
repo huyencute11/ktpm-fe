@@ -11,9 +11,13 @@ import {
   getListSemester,
   getListSemesterSuccess,
   getListSemesterFailed,
+  getStudentCurrent,
+  getStudentCurrentFailed,
+  getStudentCurrentSuccess
+
 } from "./subject.slice";
 import { BaseInterfaceRespone } from "../../../helper/BaseInterface";
-import { getListClassInSubjectData, getListSemesterData, getListSubjectData } from "./service";
+import { getListClassInSubjectData, getListSemesterData, getListSubjectData, getStudentLogin } from "./service";
 
 function* getListClassInSubjectSaga(action: PayloadAction<{subjectId:number, semesterId: number}>) {
   try {
@@ -22,7 +26,7 @@ function* getListClassInSubjectSaga(action: PayloadAction<{subjectId:number, sem
       action.payload
     );
     if (response) {
-      yield put(getListClassInSubjectSuccess({ data: response.data }));
+      yield put(getListClassInSubjectSuccess({ data: response }));
     } else {
       yield put(getListClassInSubjectFailed({ data: response }));
     }
@@ -38,7 +42,7 @@ function* getListSubjectSaga(action: PayloadAction<{ params: any }>) {
       action.payload
     );
     if (response) {
-      yield put(getListSubjectSuccess({ data: response.data }));
+      yield put(getListSubjectSuccess({ data: response }));
     } else {
       yield put(getListSubjectFailed({ data: response }));
     }
@@ -54,7 +58,7 @@ function* getListSemesterSaga(action: PayloadAction<{ params: any }>) {
       action.payload
     );
     if (response) {
-      yield put(getListSemesterSuccess({ data: response.data }));
+      yield put(getListSemesterSuccess({ data: response }));
     } else {
       yield put(getListSemesterFailed({ data: response }));
     }
@@ -62,11 +66,28 @@ function* getListSemesterSaga(action: PayloadAction<{ params: any }>) {
     console.log(err);
   }
 }
+function* getStudentCurrentSaga(action: PayloadAction<{ params: any }>) {
+  try {
+    const response: BaseInterfaceRespone<any> = yield call(
+      getStudentLogin,
+      action.payload
+    );
+    if (response) {
+      yield put(getStudentCurrentSuccess({ data: response }));
+    } else {
+      yield put(getStudentCurrentFailed({ data: response }));
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 
 export default function* subjectSaga() {
   yield all([
     takeEvery(getListClassInSubject.type, getListClassInSubjectSaga),
     takeEvery(getListSubject.type, getListSubjectSaga),
     takeEvery(getListSemester.type, getListSemesterSaga),
+    takeEvery(getStudentCurrent.type, getStudentCurrentSaga),
   ]);
 }

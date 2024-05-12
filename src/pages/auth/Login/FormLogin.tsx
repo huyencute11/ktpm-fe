@@ -1,9 +1,10 @@
 import { Form, Input, Button, Checkbox, notification } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { apiLogin } from "./serive";
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-type NotificationType = "success" | "info" | "warning" | "error";
+import { IconType } from "antd/es/notification/interface";
+export type NotificationType = "success" | "info" | "warning" | "error";
 
 type DataLoginRespone ={
   token: string;
@@ -13,31 +14,37 @@ type DataLoginRespone ={
 }
 
 const FormLogin = () => {
-  const [api, contextHolder] = notification.useNotification();
   const navigate = useNavigate();
-  const openNotification = (type: NotificationType, msg: string) => {
-    api[type]({
-      message: "Thông Báo",
-      description: msg,
-    });
-  };
+  const [loading, setLoading] = useState(false);
 
+  const openNoti = useCallback((type: IconType | undefined, mes: string, des: string) => {
+    notification.open({
+      type: type,
+      message:mes,
+      description: des,
+    });
+  }, []);
   const onFinish = (values: any) => {
     console.log("Received values of form: ", values);
     const handleLogin = async () => {
       try {
+        setLoading(true);
         const res = await apiLogin<DataLoginRespone>(values);
         console.log(res);
         if(res.status === 200){
-          openNotification("success", "Đăng nhập thành công.");
+          openNoti( 'success', "Thành công.", "Đăng nhập thành công.")
+          // openNotification("success", "Đăng nhập thành công.");
           localStorage.setItem("token", res.data);
           navigate('/home');
         }else{
-          openNotification("error", `${res.message}`);
+          openNoti( 'error', "Thất bại.", "Đăng nhập thất bại.")
         }
 
       } catch (error) {
-        console.log(error);
+        openNoti( 'error', "Thất bại.", "Đăng nhập thất bại.")
+      }finally{
+        setLoading(false);
+      
       }
     }
     handleLogin()
@@ -101,10 +108,10 @@ const FormLogin = () => {
       </Form.Item> */}
 
       <Form.Item>
-        <Button type="primary" htmlType="submit" className="w-[100%]">
+        <Button loading={loading} type="primary" htmlType="submit" className="w-[100%]">
           Log in
         </Button>
-        Or <a href="">register now!</a>
+        {/* Or <a href="">register now!</a> */}
       </Form.Item>
     </Form>
   );
