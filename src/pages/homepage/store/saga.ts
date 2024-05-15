@@ -13,11 +13,14 @@ import {
   getListSemesterFailed,
   getStudentCurrent,
   getStudentCurrentFailed,
-  getStudentCurrentSuccess
+  getStudentCurrentSuccess,
+  getRegisteredClass,
+  getRegisteredClassFailed,
+  getRegisteredClassSuccess,
 
 } from "./subject.slice";
 import { BaseInterfaceRespone } from "../../../helper/BaseInterface";
-import { getListClassInSubjectData, getListSemesterData, getListSubjectData, getStudentLogin } from "./service";
+import { getListClassInSubjectData, getListSemesterData, getListSubjectData, getStudentLogin, getListClassRegistered } from "./service";
 
 function* getListClassInSubjectSaga(action: PayloadAction<{subjectId:number, semesterId: number}>) {
   try {
@@ -81,6 +84,22 @@ function* getStudentCurrentSaga(action: PayloadAction<{ params: any }>) {
     console.log(err);
   }
 }
+function* getRegisteredClassSaga(action: PayloadAction<{ params: any }>) {
+  try {
+    const response: BaseInterfaceRespone<any> = yield call(
+      getListClassRegistered,
+      action.payload
+    );
+    console.log('response', response)
+    if (response) {
+      yield put(getRegisteredClassSuccess({ data: response }));
+    } else {
+      yield put(getRegisteredClassFailed({ data: response }));
+    }
+  } catch (err) {
+    console.log(err);
+  }
+}
 
 
 export default function* subjectSaga() {
@@ -89,5 +108,6 @@ export default function* subjectSaga() {
     takeEvery(getListSubject.type, getListSubjectSaga),
     takeEvery(getListSemester.type, getListSemesterSaga),
     takeEvery(getStudentCurrent.type, getStudentCurrentSaga),
+    takeEvery(getRegisteredClass.type, getRegisteredClassSaga),
   ]);
 }

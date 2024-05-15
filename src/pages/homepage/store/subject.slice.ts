@@ -71,6 +71,9 @@ export interface Customer {
   studentCurrent: Student | null;
   loadingGetStudentCurrent: "idle" | "loading" | "failed" | "complete";
   loadingClass: "idle" | "loading" | "failed" | "complete";
+  registeredClass: ClassInSubjectType[];
+  loadingRegisterd: "idle" | "loading" | "failed" | "complete";
+
   // insertDataCustomer: any;
   // statusInsertCustomer: "idle" | "loading" | "failed" | "complete";
   // messageInsertCustomer: string;
@@ -85,6 +88,8 @@ const initialState: Customer = {
   studentCurrent: null,
   loadingGetStudentCurrent: "idle",
   loadingClass: "idle",
+  loadingRegisterd: "idle",
+  registeredClass: [],
 };
 
 export const SubjectSlice = createSlice({
@@ -141,8 +146,29 @@ export const SubjectSlice = createSlice({
       state.studentCurrent = action.payload.data;
       state.loadingGetStudentCurrent = "complete";
     },
-    getStudentCurrentFailed: (state, action: PayloadAction<{ data: string }>) => {
+    getStudentCurrentFailed: (
+      state,
+      action: PayloadAction<{ data: string }>
+    ) => {
       state.loadingGetStudentCurrent = "failed";
+      state.messageGetDataList = action.payload.data;
+    },
+    //get registered class
+    getRegisteredClass: (state) => {
+      state.loadingRegisterd = "loading";
+    },
+    getRegisteredClassSuccess: (
+      state,
+      action: PayloadAction<{ data: any }>
+    ) => {
+      state.registeredClass = action.payload.data;
+      state.loadingRegisterd = "complete";
+    },
+    getRegisteredClassFailed: (
+      state,
+      action: PayloadAction<{ data: string }>
+    ) => {
+      state.loadingRegisterd = "failed";
       state.messageGetDataList = action.payload.data;
     },
   },
@@ -161,7 +187,10 @@ export const {
   getListSemesterFailed,
   getStudentCurrent,
   getStudentCurrentFailed,
-  getStudentCurrentSuccess
+  getStudentCurrentSuccess,
+  getRegisteredClass,
+  getRegisteredClassSuccess,
+  getRegisteredClassFailed,
 } = SubjectSlice.actions;
 // SELECTORS
 

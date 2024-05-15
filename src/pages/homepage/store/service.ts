@@ -60,3 +60,16 @@ export const getStudentLogin = async (data:object) => {
     console.log(error);
   }
 }
+
+// get list hoc phan da dang ky
+export const getListClassRegistered = async(data: object)=>{
+  try {
+    const response = await axiosInstance.get(
+      `/credit-class/register-class`
+    );
+    // console.log(response.data)
+    return response;
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -19,6 +19,7 @@ import {
   getListClassInSubject,
   getListSemester,
   getListSubject,
+  getRegisteredClass,
   getStudentCurrent,
 } from "./store/subject.slice";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -49,6 +50,14 @@ const HomePage = () => {
   const dataSubject = useAppSelector((state) => state.subject.dataListSubject);
   const dataStudent = useAppSelector((state) => state.subject.studentCurrent);
   const loadingClass = useAppSelector((state) => state.subject.loadingClass);
+  const loadingRegistered = useAppSelector(
+    (state) => state.subject.loadingRegisterd
+  );
+  
+  const dataRegistered = useAppSelector(
+    (state) => state.subject.registeredClass
+  );
+  console.log('aaaaaa', dataRegistered)
   const dataSemester = useAppSelector(
     (state) => state.subject.dataListSemester
   );
@@ -58,8 +67,8 @@ const HomePage = () => {
   useEffect(() => {
     dispatch(getListSubject());
     dispatch(getListSemester());
+    dispatch(getRegisteredClass());
   }, []);
-  console.log("aaaaaaaaaaaa--------->", dataStudent);
 
   const checkPresubjectCompleted = (preSubject: number[]) => {
     const preSubjectCompleted = dataStudent?.completedSubjects;
@@ -176,6 +185,7 @@ const HomePage = () => {
         type: type,
         message: mes,
         description: des,
+        duration: 500,
       });
     },
     []
@@ -199,23 +209,34 @@ const HomePage = () => {
           "Đăng ký thành công",
           `Đăng ký lớp học phần ${res.data.classCode} thành công.`
         );
-        dispatch(getListSubject());
-        setClassInSubject([]);
       } else {
         // 'success' | 'info' | 'error' | 'warning';
-        openNoti("error", "Đăng ký thất bại", "Đăng ký lớp học phần thất bại.");
+        openNoti(
+          "error",
+          "Đăng ký thất bại",
+          `${res.data.message}` || "Đăng ký lớp học phần thất bại."
+        );
         // openNotification("error", `${res?.data.message}`);
       }
     } catch (error) {
       openNoti("error", "Đăng ký thất bại", "Đăng ký lớp học phần thất bại.");
     } finally {
+      dispatch(getListSubject());
+      setClassInSubject([]);
       setLoadingRegisterClass(false);
       setCurrentClass(null);
       setIsModalOpen(false);
     }
   };
 
-  // confirm register class
+  // confirm register class tmp
+  const handleRegisterClassTmp = async () => {
+    openNoti(
+      "success",
+      "Đăng ký thành công",
+      `Đăng ký lớp học phần dự bị thành công.`
+    );
+  };
 
   const handleCancel = () => {
     setIsModalOpen(false);
@@ -231,7 +252,6 @@ const HomePage = () => {
     // setCurrentClass(record);
     // setClassInSubject([record]);
   };
-  
 
   //------------------------ CLASS IN SUBJECT ------------------------
   const columnsClassInSubject: TableColumnsType<ClassInSubjectType> = [
@@ -335,6 +355,91 @@ const HomePage = () => {
     }),
   };
 
+  //------------------------ CLASS REGISTERED ------------------------
+  const tableForRegistered: TableColumnsType<ClassInSubjectType> = [
+    {
+      title: "STT",
+      dataIndex: "id",
+      render: (text: string, record: ClassInSubjectType, index: number) => (
+        <span>{index + 1}</span>
+      ),
+    },
+
+    {
+      title: "Mã lớp học phần",
+      dataIndex: "classCode",
+    },
+    // {
+    //   title: "Tên môn học",
+    //   dataIndex: "subjectId",
+    //   render: (text: string) => <span>{text.name}</span>,
+    // },
+    // {
+    //   title: "Học kỳ",
+    //   dataIndex: "semester",
+    //   render: (text: string) => <span>{text.name + " " + text.year}</span>,
+    // },
+    {
+      title: "Ngày bắt đầu",
+      dataIndex: "createdDate",
+      // format(start, 'yyyy-MM-dd'),
+      render: (text: string) => <span>{format(text, "dd/MM/yyyy")}</span>,
+    },
+    {
+      title: "Ngày kết thúc",
+      dataIndex: "closedDate",
+      render: (text: string) => <span>{format(text, "dd/MM/yyyy")}</span>,
+    },
+    {
+      title: "Số lượng sinh viên",
+      dataIndex: "numberOfStudent",
+    },
+    {
+      title: "Số lượng sinh viên tối thiểu",
+      dataIndex: "minStudent",
+    },
+    {
+      title: "Số lượng sinh viên tối đa",
+      dataIndex: "maxStudent",
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "acceptOpen",
+      render: (text: boolean) => (
+        <span>{text ? "Đã chấp nhận mở lớp" : "Chưa chấp nhận mở lớp"}</span>
+      ),
+    },
+    // {
+    //   title: "Hành động",
+    //   dataIndex: "id",
+    //   // render: (text: string) => (
+    //   render: (text: string, record: ClassInSubjectType, index: number) => (
+    //     <Space>
+    //       {/* <a href="#">Xem chi tiết</a>
+    //       <a href="#">Đăng ký</a> */}
+    //       <Button
+    //         // loading={loadingRegisterClass}
+    //         disabled={record.numberOfStudent >= record.maxStudent}
+    //         type="primary"
+    //         onClick={() => handleConfirmRegisterClass(record)}
+    //       >
+    //         Đăng ký
+    //       </Button>
+    //       {record.numberOfStudent >= record.maxStudent ? (
+    //         <Button
+    //           // loading={loadingRegisterClass}
+    //           // disabled={record.numberOfStudent >= record.maxStudent}
+    //           type="primary"
+    //           onClick={() => handleConfirmRegisterClassTmp(record)}
+    //         >
+    //           Học lớp dự bị (nếu có)
+    //         </Button>
+    //       ) : null}
+    //     </Space>
+    //   ),
+    // },
+  ];
+
   return (
     <>
       <Main>
@@ -410,7 +515,26 @@ const HomePage = () => {
             dataSource={classInSubject || []}
           />
         )}
-
+        <Divider />
+        {/* Danh sách học phần đã đăng ký */}
+        {loadingRegistered === "loading" ? (
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+        ) : (
+          <Table
+            rowSelection={{
+              type: "radio",
+              // ...rowSelectionClass,
+            }}
+            rowKey={(record) => record.id}
+            title={() => (
+              <h3 className="text-center text-lg">
+                Danh sách lớp học đã đăng ký
+              </h3>
+            )}
+            columns={tableForRegistered}
+            dataSource={dataRegistered || []}
+          />
+        )}
         {/* )} */}
       </Main>
       <Modal
@@ -426,7 +550,7 @@ const HomePage = () => {
       <Modal
         title="Xác nhận đăng ký học phần dự bị"
         open={isModalOpenTmp}
-        // onOk={() => handleRegisterClass()}
+        onOk={() => handleRegisterClassTmp()}
         // confirmLoading={loadingRegisterClass}
         onCancel={() => setIsModalOpenTmp(false)}
       >
